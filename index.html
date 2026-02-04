@@ -1740,10 +1740,6 @@
 
                 resultMsg += `\n\n我们的学历规划师将在24小时内与您联系，为您提供一对一的专业咨询服务。您也可以点击下方院校卡片的"立即咨询"按钮，直接联系顾问老师。`;
 
-                if (newProfile.needZhongzhuan) {
-                resultMsg += `\n\n由于您目前是初中学历，建议您先完成中专学历提升，之后再继续提升至${newProfile.originalTarget}。以下是为您推荐的中专项目：`;
-                }
-                resultMsg += `\n\n我们的学历规划师将在24小时内与您联系，为您提供一对一的专业咨询服务。您也可以点击下方院校卡片的"立即咨询"按钮，直接联系顾问老师。`;
                 
                 setMessages(prev => [...prev, { text: resultMsg, isBot: true }]);
                 
