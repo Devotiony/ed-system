@@ -1,0 +1,2867 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学历提升智能咨询</title>
+    
+    <!-- 引入 React 库（从CDN） -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- 引入 Babel（用于解析JSX） -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ========================================
+        // 知识库数据 - 完整学历提升体系
+        // ========================================
+
+        const KNOWLEDGE_BASE = {
+        // 中专项目
+        zhongzhuan: [
+            {
+            id: 'ZZ001',
+            school: '中央广播电视中等专业学校',
+            category: '中专',
+            degree: '中专',
+            level: '中专',
+            majors: ['计算机应用', '旅游服务与管理', '法律事务', '建筑工程施工', '市政工程施工', '机电技术应用', '化学工艺', '电子商务', '会计事务', '园林技术', '市场营销', '中药', '药剂', '老年人服务与管理', '安全技术与管理', '采矿技术', '矿井通风与安全'],
+            requirement: '初中及以上学历',
+            tuition: 2000,
+            duration: '1年 / 2年 / 3年',
+            studyForm: '线上学习',
+            features: ['国家承认学历', '可报二建/九大员', '周期短', '专业齐全'],
+            country: '中国',
+            ageNote: '年满18周岁可报一年制'
+            },
+            {
+            id: 'ZZ002',
+            school: '山西煤炭职工联合大学',
+            category: '中专',
+            degree: '中专',
+            level: '中专',
+            majors: ['采矿技术', '矿山机电', '矿井通风与安全'],
+            requirement: '年满18周岁企业在职员工或社会青年',
+            tuition: 2000, // 依据市场均价估算，具体以简章为准
+            duration: '1年',
+            studyForm: '线上+线下结合',
+            features: ['2026年7月毕业', '国办重点中专', '工科专业为主'],
+            country: '中国'
+            }
+        ],
+
+        // 成人大专项目 (高起专)
+        dazhuan: [
+            {
+            id: 'DZ001',
+            school: '国家开放大学',
+            category: '成人大专',
+            degree: '大专',
+            level: '大专',
+            majors: ['行政管理', '工商企业管理', '会计', '学前教育', '建筑工程技术', '机电一体化技术', '计算机信息管理', '护理', '药学'],
+            requirement: '高中/中专/技校毕业',
+            tuition: 6000,
+            duration: '2.5年',
+            studyForm: '线上学习+期末考试',
+            features: ['免试入学', '国家承认学历', '学信网可查'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'DZ003',
+            school: '山西同文职业技术学院',
+            category: '成人大专',
+            degree: '大专',
+            level: '大专',
+            majors: ['大数据与会计', '药学', '中药学', '护理', '铁道供电技术', '眼视光技术', '康复治疗技术'],
+            requirement: '高中/中专/技校毕业',
+            tuition: 1500,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['医学类专业齐全', '学费低廉'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'DZ004',
+            school: '山西开放大学',
+            category: '成人大专',
+            degree: '大专',
+            level: '大专',
+            majors: ['行政管理', '法律事务', '大数据与会计', '电子商务', '应用化工技术', '煤矿智能开采技术'],
+            requirement: '高中/中专/技校毕业',
+            tuition: 1080,
+            tuitionMax: 1800,
+            duration: '2-2.5年',
+            studyForm: '非脱产/脱产',
+            features: ['学习形式灵活', '部分专业脱产2年'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'DZ005',
+            school: '涟源钢铁总厂职工大学',
+            category: '成人大专',
+            degree: '大专',
+            level: '大专',
+            majors: ['大数据与会计', '工商企业管理', '建筑工程技术', '机电一体化技术', '计算机应用技术'],
+            requirement: '高中/中专/技校毕业',
+            tuition: 3100,
+            tuitionMax: 3200,
+            duration: '2年',
+            studyForm: '脱产',
+            features: ['学制短（2年）', '脱产学习'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'DZ006',
+            school: '阳泉职业技术学院',
+            category: '成人大专',
+            degree: '大专',
+            level: '大专',
+            majors: ['护理', '药学', '计算机应用技术', '大数据技术', '机电一体化技术', '网络营销与直播电商', '大数据与会计'],
+            requirement: '高中/中专/技校毕业',
+            tuition: 1000,
+            tuitionMax: 2000,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['专业覆盖广', '理工文史兼收'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'DZ007',
+            school: '山西兵器工业职工大学',
+            category: '成人大专',
+            degree: '大专',
+            level: '大专',
+            majors: ['矿山机电与智能装备', '大数据与会计', '大数据技术', '工商企业管理', '机械制造及自动化', '煤矿智能开采技术', '机电设备技术', '工程造价'],
+            requirement: '高中/中专/技校毕业',
+            tuition: 1000,
+            tuitionMax: 2300,
+            duration: '2年/3年',
+            studyForm: '脱产/非脱产',
+            features: ['工科强项', '有2年制脱产班'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'DZ008',
+            school: '山西工程科技职业大学',
+            category: '成人大专',
+            degree: '大专',
+            level: '大专',
+            majors: ['安全技术与管理', '工程造价', '现代物流管理', '汽车检测与维修技术', '现代物业管理', '工程测量技术', '建筑工程技术', '道路与桥梁工程技术'],
+            requirement: '高中/中专/技校毕业',
+            tuition: 1000,
+            tuitionMax: 1500,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['建筑与工程类专业强'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'DZ009',
+            school: '阳泉师范高等专科学校',
+            category: '成人大专',
+            degree: '大专',
+            level: '大专',
+            majors: ['学前教育', '特殊教育', '社区康复', '摄影摄像技术', '现代教育技术', '音乐', '美术教育'],
+            requirement: '高中/中专/技校毕业',
+            tuition: 1000,
+            tuitionMax: 2000,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['师范类专业', '艺术类专业'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'DZ010',
+            school: '吉林化工大学',
+            category: '成人大专',
+            degree: '大专',
+            level: '大专',
+            majors: ['机械制造及自动化', '应用化工技术', '石油炼制技术'],
+            requirement: '高中/中专/技校毕业',
+            tuition: 2500,
+            duration: '2.5年',
+            studyForm: '非脱产',
+            features: ['化工特色', '学制2.5年'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'DZ011',
+            school: '吉林师范大学',
+            category: '成人大专',
+            degree: '大专',
+            level: '大专',
+            majors: ['学前教育', '小学教育'],
+            requirement: '高中/中专/技校毕业',
+            tuition: 2500,
+            duration: '2.5年',
+            studyForm: '非脱产',
+            features: ['师范类', '学制2.5年'],
+            country: '中国',
+            examBonus: true
+            }
+        ],
+
+        // 成人本科项目 (含专升本/高起本)
+        benke: [
+            {
+            id: 'BK001',
+            school: '国家开放大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['行政管理', '工商管理', '会计学', '学前教育', '土木工程', '计算机科学与技术', '护理学', '法学'],
+            requirement: '大专毕业（专升本）/ 高中中专毕业（高起本）',
+            tuition: 8000,
+            duration: '2.5年',
+            studyForm: '线上学习+期末考试',
+            features: ['免试入学', '国家承认学历', '可申请学位'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK004',
+            school: '太原工业学院',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['机械设计制造及其自动化', '电气工程及其自动化', '计算机科学与技术', '化学工程与工艺', '安全工程', '工商管理', '财务管理'],
+            requirement: '大专毕业',
+            tuition: 1500,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['理工经管类为主', '学费适中'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK005',
+            school: '山西晋中理工学院',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['法学', '财务管理', '机械设计制造及其自动化', '计算机科学与技术', '网络工程', '安全工程'],
+            requirement: '大专毕业',
+            tuition: 1000,
+            tuitionMax: 1500,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['文理兼收', '费用较低'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK006',
+            school: '山西财经大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['会计学', '财务管理', '人力资源管理', '审计学', '资产评估', '行政管理', '物流管理', '电子商务', '法学', '工商管理', '市场营销', '保险学', '工程管理'],
+            requirement: '大专毕业（专升本）/ 高中中专毕业（高起本）',
+            tuition: 1000,
+            duration: '3年（专升本）/ 5年（高起本）',
+            studyForm: '非脱产',
+            features: ['财经类名校', '专业极丰富', '高起本与专升本均有'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK007',
+            school: '忻州师范学院',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['汉语言文学', '数学与应用数学', '工商管理', '会计学', '学前教育', '小学教育', '法学'],
+            requirement: '大专毕业',
+            tuition: 1000,
+            tuitionMax: 1500,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['师范类特色', '教育类专业齐全'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK008',
+            school: '湖北中医药大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['药学', '中药学', '护理学', '康复治疗学', '公共事业管理', '健康服务与管理'],
+            requirement: '大专毕业（专升本）/ 高中中专毕业（高起本）',
+            tuition: 2980,
+            duration: '2.5年（专升本）/ 5年（高起本）',
+            studyForm: '非脱产',
+            features: ['医学类名校', '学制短（2.5年）'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK009',
+            school: '山西医科大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['临床医学', '医学影像学', '口腔医学', '医学检验技术', '护理学', '眼视光学'],
+            requirement: '医学类大专毕业',
+            tuition: 2000,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['医学专业极全', '省内医学龙头'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK010',
+            school: '南昌大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['药学', '护理学'],
+            requirement: '大专毕业',
+            tuition: 2600,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['211院校', '知名度高'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK011',
+            school: '延边大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['食品科学与工程', '农学', '园林', '动物医学', '药学', '护理学', '中医学'],
+            requirement: '大专毕业',
+            tuition: 2500,
+            tuitionMax: 3200,
+            duration: '2.5年',
+            studyForm: '非脱产',
+            features: ['211院校', '学制短', '农医类特色'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK012',
+            school: '山西中医药大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['中医学', '针灸推拿学'],
+            requirement: '大专毕业',
+            tuition: 2000,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['中医特色鲜明'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK013',
+            school: '太原科技大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['机械设计制造及其自动化', '电气工程及其自动化', '计算机科学与技术', '化学工程与工艺', '采矿工程', '环境工程', '安全工程', '自动化', '车辆工程', '会计学', '市场营销', '法学', '社会工作'],
+            requirement: '大专毕业（专升本）/ 高中中专毕业（高起本）',
+            tuition: 1000,
+            tuitionMax: 1500,
+            duration: '3年（专升本）/ 5年（高起本）',
+            studyForm: '非脱产',
+            features: ['重工机械特色', '高起本专业多'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK014',
+            school: '山西大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['法学', '教育学', '汉语言文学', '新闻学', '历史学', '工商管理', '行政管理', '会计学', '应用心理学', '计算机科学与技术', '电气工程及其自动化', '土木工程'],
+            requirement: '大专毕业',
+            tuition: 1000,
+            tuitionMax: 1500,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['综合性大学', '文理学科均衡'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK015',
+            school: '山西师范大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['汉语言文学', '英语', '法学', '财务管理', '教育学', '小学教育', '学前教育', '数学与应用数学', '心理学', '计算机科学与技术', '音乐学', '美术学', '舞蹈学'],
+            requirement: '大专毕业',
+            tuition: 1000,
+            tuitionMax: 2200,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['师范类首选', '艺术类专业齐全'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK016',
+            school: '太原理工大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['土木工程', '机械设计制造及其自动化', '能源与动力工程', '电气工程及其自动化', '计算机科学与技术', '水利水电工程', '测绘工程', '化学工程与工艺', '采矿工程', '环境工程', '安全工程', '工程管理'],
+            requirement: '大专毕业（专升本）/ 高中中专毕业（高起本）',
+            tuition: 1500,
+            duration: '3年（专升本）/ 5年（高起本）',
+            studyForm: '非脱产',
+            features: ['211院校', '工科实力强'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK017',
+            school: '中北大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['机械设计制造及其自动化', '能源与动力工程', '电气工程及其自动化', '通信工程', '土木工程', '轨道交通信号与控制', '计算机科学与技术', '化学工程与工艺', '环境工程', '安全工程', '工商管理', '市场营销', '财务管理', '法学', '政治学与行政学'],
+            requirement: '大专毕业（专升本）/ 高中中专毕业（高起本）',
+            tuition: 1000,
+            tuitionMax: 1500,
+            duration: '3年（专升本）/ 5年（高起本）',
+            studyForm: '非脱产',
+            features: ['兵工特色', '专业覆盖面广'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK018',
+            school: '山西工程技术学院',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['矿物加工工程', '机械设计制造及其自动化', '电气工程及其自动化', '计算机科学与技术', '智能科学与技术', '数据科学与大数据技术', '土木工程', '采矿工程', '测绘工程', '物联网工程', '勘查技术与工程', '安全工程', '工程管理', '工程造价', '投资学', '财务管理', '电子商务'],
+            requirement: '大专毕业',
+            tuition: 1000,
+            tuitionMax: 1500,
+            duration: '3年',
+            studyForm: '非脱产',
+            features: ['新兴工科专业多', '大数据/智能科学'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK019',
+            school: '武汉科技大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['法学', '机械工程', '冶金工程', '土木工程', '电气工程及其自动化', '计算机科学与技术', '安全工程', '工商管理', '行政管理', '市场营销', '会计学', '临床医学', '预防医学'],
+            requirement: '大专毕业',
+            tuition: 2250,
+            tuitionMax: 2900,
+            duration: '2.5年',
+            studyForm: '非脱产',
+            features: ['冶金特色', '学制2.5年', '医学类有临床/预防'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK020',
+            school: '武汉轻工大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['机械设计制造及其自动化', '电气工程及其自动化', '计算机科学与技术', '土木工程', '食品科学与工程', '工商管理', '行政管理', '会计学', '健康服务与管理', '水产养殖学'],
+            requirement: '大专毕业（专升本）/ 高中中专毕业（高起本）',
+            tuition: 1500,
+            duration: '2.5年（专升本）/ 5年（高起本）',
+            studyForm: '非脱产',
+            features: ['食品科学特色', '性价比高'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK021',
+            school: '吉林化工大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['化学工程与工艺', '计算机科学与技术', '能源与动力工程', '电气工程及其自动化', '安全工程', '环境工程', '机械设计制造及其自动化', '给排水科学与工程', '制药工程', '工程管理', '物流管理'],
+            requirement: '大专毕业（专升本）/ 高中中专毕业（高起本）',
+            tuition: 2500,
+            duration: '2.5年（专升本）/ 5年（高起本）',
+            studyForm: '非脱产',
+            features: ['化工与制药强项'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK022',
+            school: '吉林师范大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['新闻学', '汉语言文学', '历史学', '法学', '社会工作', '思想政治教育', '教育学', '体育教育', '学前教育', '小学教育', '金融学', '财务管理', '人力资源管理', '心理学', '生物科学', '数学与应用数学', '计算机科学与技术', '化学', '软件工程'],
+            requirement: '大专毕业',
+            tuition: 2500,
+            tuitionMax: 3000,
+            duration: '2.5年',
+            studyForm: '非脱产',
+            features: ['文理师范齐全', '专业选择多'],
+            country: '中国',
+            examBonus: true
+            },
+            {
+            id: 'BK023',
+            school: '山西大同大学',
+            category: '成人本科',
+            degree: '本科',
+            level: '本科',
+            majors: ['汉语言文学', '中医学', '机械设计制造及自动化', '计算机科学与技术', '土木工程', '采矿工程', '工商管理', '会计学', '法学', '学前教育', '临床医学', '医学检验技术', '护理'],
+            requirement: '大专毕业（专升本）/ 高中中专毕业（高起本）',
+            tuition: 1000,
+            tuitionMax: 2000,
+            duration: '3年（专升本）/ 5年（高起本）',
+            studyForm: '非脱产',
+            features: ['晋北名校', '医学/采矿/师范综合'],
+            country: '中国',
+            examBonus: true
+            }
+        ],
+
+        // 国内同等学力申硕
+        domestic_master: [
+            {
+            id: 'D001',
+            school: '三峡大学',
+            category: '国内同等学力申硕',
+            degree: '医学硕士',
+            level: '硕士',
+            majors: ['临床医学（各专业）'],
+            examSubjects: '英语+专业课',
+            requirement: '本科毕业',
+            tuition: 50000,
+            duration: '2-3年',
+            studyForm: '网考',
+            features: ['全程网学', '网考简单便捷'],
+            country: '中国'
+            },
+            {
+            id: 'D002',
+            school: '锦州医科大学',
+            category: '国内同等学力申硕',
+            degree: '医学硕士',
+            level: '硕士',
+            majors: ['临床医学', '护理学'],
+            examSubjects: '英语+专业课',
+            requirement: '本科毕业',
+            tuition: 55000,
+            duration: '2-3年',
+            studyForm: '网考',
+            features: ['全程网学', '网考简单便捷'],
+            country: '中国'
+            },
+            {
+            id: 'D003',
+            school: '湖北师范大学',
+            category: '国内同等学力申硕',
+            degree: '教育学硕士',
+            level: '硕士',
+            majors: ['师范类各专业'],
+            examSubjects: '英语+教育',
+            requirement: '学士学位满三年',
+            tuition: 46000,
+            duration: '2-3年',
+            studyForm: '网考',
+            features: ['全程网学', '网考简单便捷'],
+            country: '中国'
+            },
+            {
+            id: 'D004',
+            school: '重庆理工大学',
+            category: '国内同等学力申硕',
+            degree: '工学/理学硕士',
+            level: '硕士',
+            majors: ['计算机', '机械', '仪器', '通信', '药学'],
+            examSubjects: '英语',
+            requirement: '本科毕业',
+            tuition: 36000,
+            duration: '2-3年',
+            studyForm: '网考',
+            features: ['全程网学', '网考简单便捷', '仅考英语'],
+            country: '中国'
+            }
+        ],
+
+        // 境外硕士
+        overseas_master: [
+            {
+            id: 'O001',
+            school: '斯里兰卡首都大学',
+            category: '境外硕士',
+            degree: '硕士',
+            level: '硕士',
+            majors: ['工商管理', '公共管理', '教育学', '应用金融', '护理学', '计算机'],
+            requirement: '专科毕业或本科毕业',
+            tuition: 120000,
+            duration: '1年',
+            studyForm: '出国两次累计大于180天',
+            features: ['中文助教', '专科可报'],
+            country: '斯里兰卡'
+            },
+            {
+            id: 'O005',
+            school: '英国伦敦城市大学新加坡校区',
+            category: '境外硕士',
+            degree: '硕士',
+            level: '硕士',
+            majors: ['工商管理', '国际会计与金融', '国际会展与旅游管理'],
+            requirement: '本科毕业或专科毕业',
+            tuition: 140000,
+            duration: '1年',
+            studyForm: '三个小学期8个月左右',
+            features: ['新加坡学习', '英语授课', '英国学位'],
+            country: '新加坡'
+            },
+            {
+            id: 'O007',
+            school: '泰国西那瓦国际大学',
+            category: '境外硕士',
+            degree: '硕士',
+            level: '硕士',
+            majors: ['教育学', '管理学', '工程管理', '经济学', '心理学', '人工智能与网络安全', '体育教育与管理', '音乐教育', '美术教育', '美术与设计', '新闻传播学'],
+            requirement: '本科应往届毕业生',
+            tuition: 70000,
+            duration: '1年',
+            studyForm: '三个小学期',
+            features: ['中英双语', '性价比极高'],
+            country: '泰国'
+            },
+            {
+            id: 'O009',
+            school: '泰国瑞嘉普大学',
+            category: '境外硕士',
+            degree: '硕士',
+            level: '硕士',
+            majors: ['工商管理', '教育管理', '公共卫生'],
+            requirement: '本科应往届毕业生',
+            tuition: 120000,
+            duration: '2年',
+            studyForm: '寒暑假上课',
+            features: ['寒暑假集中', '中英双语'],
+            country: '泰国'
+            },
+            {
+            id: 'O010',
+            school: '泰国曼谷吞武里大学',
+            category: '境外硕士',
+            degree: '硕士',
+            level: '硕士',
+            majors: ['体育教育', '音乐学', '教育学', '艺术管理', '创意媒体设计', '酒店管理'],
+            requirement: '本科应往届毕业生',
+            tuition: 150000,
+            duration: '2年',
+            studyForm: '每年两个学期',
+            features: ['艺术体育类强', '中英双语'],
+            country: '泰国'
+            },
+            {
+            id: 'O011',
+            school: '马来西亚国民大学',
+            category: '境外硕士',
+            degree: '硕士',
+            level: '硕士',
+            majors: ['工商管理', '教育管理', '体育管理'],
+            requirement: '本科毕业生、雅思5.5',
+            tuition: 60000,
+            duration: '1年',
+            studyForm: '三个小学期',
+            features: ['公立名校', '费用低'],
+            country: '马来西亚'
+            },
+            {
+            id: 'O012',
+            school: '马来西亚英迪大学',
+            category: '境外硕士',
+            degree: '硕士',
+            level: '硕士',
+            majors: ['工商管理', '教育学', '体育管理', '中医学（2年）'],
+            requirement: '本科毕业生、雅思5.0',
+            tuition: 100000,
+            duration: '1年',
+            studyForm: '三个小学期',
+            features: ['英语授课', '含金量高'],
+            country: '马来西亚'
+            },
+            {
+            id: 'O013',
+            school: '韩国大邱加图立大学',
+            category: '境外硕士',
+            degree: '硕士',
+            level: '硕士',
+            majors: ['行政政策学', '法学', '人工智能大数据', '体育学', '康复治疗学', '音乐学', '放射线', '生物医学', '贸易物流'],
+            requirement: '本科毕业+学士学位',
+            tuition: 150000,
+            duration: '1年',
+            studyForm: '全日制硕士',
+            features: ['中文助教', '专业广泛'],
+            country: '韩国'
+            },
+            {
+            id: 'O018',
+            school: '韩国灵山大学',
+            category: '境外硕士',
+            degree: '硕士',
+            level: '硕士',
+            majors: ['护理学', '物理治疗教育学', '体育休闲', '跆拳道', '计算机', '口腔卫生保健'],
+            requirement: '本科毕业+学士学位',
+            tuition: 130000,
+            duration: '1年',
+            studyForm: '三个小学期',
+            features: ['中文授课', '健康护理类强'],
+            country: '韩国'
+            },
+            {
+            id: 'O019',
+            school: '韩国牧园大学',
+            category: '境外硕士',
+            degree: '硕士',
+            level: '硕士',
+            majors: ['经营学', '视觉设计', '美术学', '教育学'],
+            requirement: '本科毕业+学士学位',
+            tuition: 170000,
+            duration: '2年',
+            studyForm: '寒暑假上课',
+            features: ['中文授课', '适合教师提升'],
+            country: '韩国'
+            }
+        ],
+
+        // 境外博士
+        overseas_doctor: [
+            {
+            id: 'O008', // 对应西那瓦博士
+            school: '泰国西那瓦国际大学',
+            category: '境外博士',
+            degree: '博士',
+            level: '博士',
+            majors: ['音乐学', '舞蹈学', '信息资源管理', '心理学', '新闻与传播学', '艺术表演'],
+            requirement: '硕士毕业',
+            tuition: 280000,
+            duration: '3年',
+            studyForm: '寒暑假出境上课',
+            features: ['中英双语', '寒暑假集中'],
+            country: '泰国'
+            },
+            {
+            id: 'P003',
+            school: '泰国瑞嘉普大学',
+            category: '境外博士',
+            degree: '博士',
+            level: '博士',
+            majors: ['工商管理', '教育学'],
+            requirement: '硕士毕业',
+            tuition: 180000,
+            duration: '3年',
+            studyForm: '寒暑假出境上课',
+            features: ['中英双语', '性价比高'],
+            country: '泰国'
+            },
+            {
+            id: 'P004',
+            school: '泰国曼谷吞武里大学',
+            category: '境外博士',
+            degree: '博士',
+            level: '博士',
+            majors: ['工商管理', '音乐学', '教育管理', '体育教育', '艺术管理', '传媒'],
+            requirement: '硕士毕业',
+            tuition: 280000,
+            duration: '3年',
+            studyForm: '寒暑假出境上课',
+            features: ['中英双语', '艺术体育优选'],
+            country: '泰国'
+            },
+            {
+            id: 'P005',
+            school: '韩国嘉泉大学',
+            category: '境外博士',
+            degree: '博士',
+            level: '博士',
+            majors: ['教育学'],
+            requirement: '硕士毕业',
+            tuition: 140000,
+            duration: '3年',
+            studyForm: '全日制上课',
+            features: ['中韩双语', '名校博士'],
+            country: '韩国'
+            },
+            {
+            id: 'P006',
+            school: '韩国牧园大学',
+            category: '境外博士',
+            degree: '博士',
+            level: '博士',
+            majors: ['计算机工程', '美术', '公共管理', '国际经营', '财务会计', '音乐'],
+            requirement: '硕士毕业',
+            tuition: 230000,
+            duration: '3年',
+            studyForm: '寒暑假出境上课',
+            features: ['中文翻译', '寒暑假集中'],
+            country: '韩国'
+            },
+            {
+            id: 'P007',
+            school: '韩国大邱加图立大学',
+            category: '境外博士',
+            degree: '博士',
+            level: '博士',
+            majors: ['经营学', '法学', '教育学', '行政学', '公共管理', '放射线', '康复治疗', '制药工程', '语言听觉治疗', '体育学', '电气工程', '音乐学', 'AI大数据等'],
+            requirement: '硕士毕业',
+            tuition: 200000,
+            duration: '2年',
+            studyForm: '全日制上课',
+            features: ['中文翻译', '学制短（2年）'],
+            country: '韩国'
+            },
+            {
+            id: 'P008',
+            school: '马来西亚英迪大学',
+            category: '境外博士',
+            degree: '博士',
+            level: '博士',
+            majors: ['创新与科技', '管理学', '教育学', '数据科学', '金融科技等'],
+            requirement: '硕士毕业、雅思5.0',
+            tuition: 150000,
+            duration: '3年',
+            studyForm: '寒暑假出境上课',
+            features: ['英语授课', '研究型博士'],
+            country: '马来西亚'
+            }
+        ]
+        };
+        // 合并所有项目
+        // const ALL_PROGRAMS = [
+        //   ...KNOWLEDGE_BASE.zhongzhuan,
+        //   ...KNOWLEDGE_BASE.dazhuan,
+        //   ...KNOWLEDGE_BASE.benke,
+        //   ...KNOWLEDGE_BASE.domestic_master,
+        //   ...KNOWLEDGE_BASE.overseas_master,
+        //   ...KNOWLEDGE_BASE.overseas_doctor
+        // ];
+
+        // ========================================
+        // 学历提升路径规则
+        // ========================================
+
+        const EDUCATION_PATH_RULES = {
+        '初中': {
+            canUpgradeTo: ['中专'],
+            message: '初中学历需要先提升至中专，之后才能继续提升至大专或本科。'
+        },
+        '中专': {
+            canUpgradeTo: ['大专', '本科'],
+            message: null
+        },
+        '技校': {
+            canUpgradeTo: ['大专', '本科'],
+            message: null
+        },
+        '高中': {
+            canUpgradeTo: ['大专', '本科'],
+            message: null
+        },
+        '大专': {
+            canUpgradeTo: ['本科', '硕士'],
+            message: null
+        },
+        '本科': {
+            canUpgradeTo: ['硕士', '博士'],
+            message: null
+        },
+        '硕士': {
+            canUpgradeTo: ['博士'],
+            message: null
+        }
+        };
+
+        // 根据当前学历获取可选的目标学历
+        // function getAvailableTargets(currentEducation) {
+        //   const rule = EDUCATION_PATH_RULES[currentEducation];
+        //   return rule ? rule.canUpgradeTo : [];
+        // }
+
+        // ========================================
+        // 招生顾问信息配置
+        // ========================================
+        const CONSULTANT_INFO = {
+        name: '赵老师',
+        title: '资深学历规划师',
+        phone: '13734070457',
+        wechat: 'zxj035844',
+        // 注意：实际部署时请替换为赵老师微信二维码的真实URL
+        qrCodeUrl: 'https://www.picgo.net/image/QR.bnb22w',
+        workingHours: '周一至周日 9:00-21:00',
+        location: '山西太原'
+        };
+
+        // ========================================
+        // 匹配算法
+        // ========================================
+
+        // 在 matchPrograms 函数外面（或里面末尾）添加辅助函数：
+        function getSuggestion(profile) {
+        const userEdu = profile.currentEducation;
+        const targetDegree = profile.targetDegree;
+        
+        if (targetDegree === '硕士') {
+            if (['高中', '中专', '技校'].includes(userEdu)) {
+            return '您目前是' + userEdu + '学历，想要攻读硕士学位，建议您先提升学历至本科或大专，然后再申请硕士项目。推荐路径：' + userEdu + ' → 大专/本科 → 硕士';
+            }
+            if (userEdu === '初中') {
+            return '您目前是初中学历，想要攻读硕士学位，建议您按以下路径逐步提升：初中 → 中专 → 大专/本科 → 硕士';
+            }
+        }
+        
+        if (targetDegree === '博士') {
+            if (['高中', '中专', '技校', '大专', '初中'].includes(userEdu)) {
+            return '您目前是' + userEdu + '学历，想要攻读博士学位，建议您先提升学历至硕士，然后再申请博士项目。';
+            }
+            if (userEdu === '本科') {
+            return '您目前是本科学历，想要攻读博士学位，建议您先提升学历至硕士，然后再申请博士项目。';
+            }
+        }
+        
+        return '根据您的情况，暂时没有找到完全匹配的项目，建议您联系顾问老师获取个性化方案。';
+        }
+
+        // 辅助函数：判断专业是否匹配用户意向
+        function matchMajorInterest(major, interest) {
+        if (interest.includes('医') || interest.includes('护理')) {
+            return major.includes('医') || major.includes('护理') || major.includes('口腔') || major.includes('药');
+        }
+        if (interest.includes('教育') || interest.includes('师范')) {
+            return major.includes('教育') || major.includes('师范') || major.includes('学前');
+        }
+        if (interest.includes('管理') || interest.includes('工商')) {
+            return major.includes('管理') || major.includes('工商');
+        }
+        if (interest.includes('计算机') || interest.includes('信息') || interest.includes('it')) {
+            return major.includes('计算机') || major.includes('信息') || major.includes('技术') || major.includes('数据');
+        }
+        if (interest.includes('建筑') || interest.includes('工程')) {
+            return major.includes('建筑') || major.includes('工程') || major.includes('土木');
+        }
+        if (interest.includes('会计') || interest.includes('财务') || interest.includes('金融')) {
+            return major.includes('会计') || major.includes('金融') || major.includes('财');
+        }
+        if (interest.includes('法') || interest.includes('法律')) {
+            return major.includes('法');
+        }
+        if (interest.includes('艺术') || interest.includes('设计') || interest.includes('音乐') || interest.includes('美术')) {
+            return major.includes('艺术') || major.includes('音乐') || major.includes('美术') || major.includes('设计');
+        }
+        return false;
+        }
+
+        function matchPrograms(profile) {
+        let results = [];
+        
+        // 根据目标学历筛选
+        if (profile.targetDegree === '中专') {
+            results = KNOWLEDGE_BASE.zhongzhuan;
+        } else if (profile.targetDegree === '大专') {
+            results = KNOWLEDGE_BASE.dazhuan;
+        } else if (profile.targetDegree === '本科') {
+            results = KNOWLEDGE_BASE.benke;
+        } else if (profile.targetDegree === '硕士') {
+            results = [...KNOWLEDGE_BASE.domestic_master, ...KNOWLEDGE_BASE.overseas_master];
+        } else if (profile.targetDegree === '博士') {
+            results = KNOWLEDGE_BASE.overseas_doctor;
+        }
+        
+        // 根据用户当前学历筛选符合报名条件的院校
+        if (profile.currentEducation) {
+            const userEdu = profile.currentEducation;
+            
+            results = results.filter(p => {
+            const req = p.requirement.toLowerCase();
+            
+            // 用户是初中学历
+            if (userEdu === '初中') {
+                return req.includes('初中');
+            }
+            
+            // 用户是高中/中专/技校学历
+            if (['高中', '中专', '技校'].includes(userEdu)) {
+                // 可以报：要求高中/中专/技校的，或者高起本/高起专的
+                return req.includes('高中') || req.includes('中专') || req.includes('技校') || 
+                    req.includes('高起') || req.includes('初中');
+            }
+            
+            // 用户是大专学历
+            if (userEdu === '大专') {
+                // 可以报：要求大专的，或者专升本的，或者专科的
+                return req.includes('大专') || req.includes('专科') || req.includes('专升');
+            }
+            
+            // 用户是本科学历
+            if (userEdu === '本科') {
+                // 可以报：要求本科的，或者大专及以上的
+                return req.includes('本科') || req.includes('大专') || req.includes('专科');
+            }
+            
+            // 用户是硕士学历
+            if (userEdu === '硕士') {
+                // 可以报：要求硕士的，或者本科及以上的
+                return req.includes('硕士') || req.includes('本科');
+            }
+            
+            return true;
+            });
+        }
+
+        // 新增：如果用户指定了具体院校，优先匹配该院校
+        if (profile.schoolPreference && 
+            profile.schoolPreference !== '暂无' && 
+            profile.schoolPreference !== '暂不确定') {
+            const preferredSchool = profile.schoolPreference.toLowerCase();
+            const schoolMatched = results.filter(p => 
+            p.school.toLowerCase().includes(preferredSchool) ||
+            preferredSchool.includes(p.school.toLowerCase())
+            );
+            
+            // 如果找到匹配的院校，将其排在前面
+            if (schoolMatched.length > 0) {
+            const otherResults = results.filter(p => 
+                !p.school.toLowerCase().includes(preferredSchool) &&
+                !preferredSchool.includes(p.school.toLowerCase())
+            );
+            results = [...schoolMatched, ...otherResults];
+            }
+        }
+
+        // 按意向专业筛选
+        if (profile.majorInterest && profile.majorInterest !== '不限' && profile.majorInterest !== '暂不确定') {
+            const interest = profile.majorInterest.toLowerCase();
+            results = results.filter(p => {
+            const majorsStr = p.majors.join(',').toLowerCase();
+            if (interest.includes('医') || interest.includes('护理')) {
+                return majorsStr.includes('医') || majorsStr.includes('护理') || majorsStr.includes('口腔') || majorsStr.includes('药');
+            }
+            if (interest.includes('教育') || interest.includes('师范')) {
+                return majorsStr.includes('教育') || majorsStr.includes('师范');
+            }
+            if (interest.includes('管理') || interest.includes('工商')) {
+                return majorsStr.includes('管理') || majorsStr.includes('工商');
+            }
+            if (interest.includes('计算机') || interest.includes('信息') || interest.includes('IT')) {
+                return majorsStr.includes('计算机') || majorsStr.includes('信息') || majorsStr.includes('技术');
+            }
+            if (interest.includes('建筑') || interest.includes('工程')) {
+                return majorsStr.includes('建筑') || majorsStr.includes('工程') || majorsStr.includes('土木');
+            }
+            if (interest.includes('会计') || interest.includes('财务') || interest.includes('金融')) {
+                return majorsStr.includes('会计') || majorsStr.includes('金融') || majorsStr.includes('财');
+            }
+            if (interest.includes('法') || interest.includes('法律')) {
+                return majorsStr.includes('法');
+            }
+            if (interest.includes('艺术') || interest.includes('设计') || interest.includes('音乐') || interest.includes('美术')) {
+                return majorsStr.includes('艺术') || majorsStr.includes('音乐') || majorsStr.includes('美术') || majorsStr.includes('设计');
+            }
+            return true;
+            });
+        }
+        
+        // 按意向学校筛选
+        if (profile.schoolPreference && profile.schoolPreference !== '不限' && profile.schoolPreference !== '暂不确定') {
+            const schoolPref = profile.schoolPreference.toLowerCase();
+            if (schoolPref.includes('国内')) {
+            results = results.filter(p => p.country === '中国');
+            } else if (schoolPref.includes('国外') || schoolPref.includes('境外') || schoolPref.includes('留学')) {
+            results = results.filter(p => p.country !== '中国');
+            }
+        }
+        
+        // 如果没有匹配结果，返回该层次的所有项目
+        // if (results.length === 0) {
+        //   if (profile.targetDegree === '中专') {
+        //     results = KNOWLEDGE_BASE.zhongzhuan;
+        //   } else if (profile.targetDegree === '大专') {
+        //     results = KNOWLEDGE_BASE.dazhuan;
+        //   } else if (profile.targetDegree === '本科') {
+        //     results = KNOWLEDGE_BASE.benke;
+        //   } else if (profile.targetDegree === '硕士') {
+        //     results = [...KNOWLEDGE_BASE.domestic_master, ...KNOWLEDGE_BASE.overseas_master];
+        //   } else if (profile.targetDegree === '博士') {
+        //     results = KNOWLEDGE_BASE.overseas_doctor;
+        //   }
+        // }
+        
+        // 计算匹配度评分并排序，同时对专业进行重排序
+        results = results.map(p => {
+            let score = 70;
+            
+            // 费用越低分越高
+            if (p.tuition < 50000) score += 15;
+            else if (p.tuition < 100000) score += 10;
+            else if (p.tuition < 150000) score += 5;
+            
+            // 学制越短分越高
+            if (p.duration.includes('1年')) score += 10;
+            else if (p.duration.includes('2年') || p.duration.includes('2.5年')) score += 5;
+            
+            // 特色加分
+            if (p.features && p.features.length > 2) score += 5;
+            
+            // 对专业进行重排序，将用户意向专业排在第一位
+            let sortedMajors = [...p.majors];
+            if (profile.majorInterest && profile.majorInterest !== '不限' && profile.majorInterest !== '暂不确定') {
+            const interest = profile.majorInterest.toLowerCase();
+            sortedMajors.sort((a, b) => {
+                const aMatch = matchMajorInterest(a.toLowerCase(), interest);
+                const bMatch = matchMajorInterest(b.toLowerCase(), interest);
+                if (aMatch && !bMatch) return -1;
+                if (!aMatch && bMatch) return 1;
+                return 0;
+            });
+            }
+            
+            return { ...p, majors: sortedMajors, matchScore: Math.min(score, 98) };
+        });
+        
+        results.sort((a, b) => b.matchScore - a.matchScore);
+
+        // 如果用户指定了意向院校且在知识库中，确保该院校排在最前面
+        if (profile.schoolPreference && 
+            profile.schoolPreference !== '暂无' && 
+            profile.schoolPreference !== '暂不确定' &&
+            !profile.schoolNotInDatabase) {
+            const preferredSchool = profile.schoolPreference.toLowerCase();
+            const preferredIndex = results.findIndex(p => 
+            p.school.toLowerCase().includes(preferredSchool) ||
+            preferredSchool.includes(p.school.toLowerCase())
+            );
+            
+            if (preferredIndex > 0) {
+            // 将意向院校移到最前面
+            const [preferredProgram] = results.splice(preferredIndex, 1);
+            results.unshift(preferredProgram);
+            }
+        }
+
+        // 返回结果和是否需要先提升学历的建议
+        return {
+            programs: results,
+            needUpgradeFirst: results.length === 0,
+            suggestion: results.length === 0 ? getSuggestion(profile) : null
+        };
+        }
+
+        // ========================================
+        // 对话消息组件
+        // ========================================
+
+        function Message({ message, isBot }) {
+        return (
+            <div className={`message ${isBot ? 'bot' : 'user'}`}>
+            {isBot && (
+                <div className="avatar bot-avatar">
+                <span className="bot-name">小豆</span>
+                </div>
+            )}
+            <div className="message-content">
+                <div dangerouslySetInnerHTML={{ __html: message.replace(/\n/g, '<br/>') }} />
+            </div>
+            {!isBot && (
+                <div className="avatar user-avatar">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                </div>
+            )}
+            </div>
+        );
+        }
+
+        // ========================================
+        // 选项按钮组件
+        // ========================================
+
+        function OptionButtons({ options, onSelect }) {
+        return (
+            <div className="options-container">
+            <div className="options-grid">
+                {options.map((option, idx) => (
+                <button
+                    key={idx}
+                    className="option-btn"
+                    onClick={() => onSelect(option)}
+                >
+                    {option}
+                </button>
+                ))}
+            </div>
+            </div>
+        );
+        }
+
+        // ========================================
+        // 文本输入组件
+        // ========================================
+
+        function TextInput({ placeholder, onSubmit, type = 'text' }) {
+        const [value, setValue] = useState('');
+        
+        const handleSubmit = () => {
+            if (value.trim()) {
+            onSubmit(value.trim());
+            setValue('');
+            }
+        };
+        
+        const handleKeyPress = (e) => {
+            if (e.key === 'Enter') {
+            handleSubmit();
+            }
+        };
+        
+        return (
+            <div className="text-input-container">
+            <input
+                type={type}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder={placeholder}
+                className="text-input"
+            />
+            <button 
+                className="submit-btn"
+                onClick={handleSubmit}
+                disabled={!value.trim()}
+            >
+                确认
+            </button>
+            </div>
+        );
+        }
+
+        // ========================================
+        // 咨询弹窗组件
+        // ========================================
+
+        function ConsultModal({ isOpen, onClose, program, userName }) {
+        if (!isOpen) return null;
+        
+        return (
+            <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
+                <button className="modal-close" onClick={onClose}>×</button>
+                
+                <div className="modal-header">
+                <div className="modal-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                    <path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
+                    </svg>
+                </div>
+                <h2>专属顾问为您服务</h2>
+                <p className="modal-subtitle">
+                    {userName ? `${userName}，` : ''}您对<strong>「{program?.school}」</strong>感兴趣
+                </p>
+                </div>
+                
+                <div className="consultant-card">
+                <div className="consultant-avatar">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                </div>
+                <div className="consultant-info">
+                    <h3>{CONSULTANT_INFO.name}</h3>
+                    <span className="consultant-title">{CONSULTANT_INFO.title}</span>
+                </div>
+                </div>
+                
+                <div className="contact-section">
+                <div className="contact-item phone">
+                    <div className="contact-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                    </svg>
+                    </div>
+                    <div className="contact-detail">
+                    <span className="contact-label">电话咨询</span>
+                    <a href={`tel:${CONSULTANT_INFO.phone}`} className="contact-value phone-number">
+                        {CONSULTANT_INFO.phone}
+                    </a>
+                    <span className="contact-hint">点击可直接拨打</span>
+                    </div>
+                </div>
+                
+                <div className="contact-divider">
+                    <span>或</span>
+                </div>
+                
+                <div className="contact-item wechat">
+                    <div className="qr-code-wrapper">
+                    <img 
+                        src={CONSULTANT_INFO.qrCodeUrl} 
+                        alt="微信二维码"
+                        className="qr-code"
+                    />
+                    </div>
+                    <div className="wechat-info">
+                    <span className="contact-label">微信咨询</span>
+                    <span className="wechat-id">微信号：{CONSULTANT_INFO.wechat}</span>
+                    <span className="contact-hint">长按识别或截图扫码添加</span>
+                    </div>
+                </div>
+                </div>
+                
+                <div className="modal-footer">
+                <div className="callback-notice">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    <span>您的信息已记录，招生老师将在 <strong>24小时内</strong> 主动联系您</span>
+                </div>
+                <div className="working-hours">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                    </svg>
+                    <span>服务时间：{CONSULTANT_INFO.workingHours}</span>
+                </div>
+                </div>
+            </div>
+            </div>
+        );
+        }
+
+        // ========================================
+        // 院校卡片组件
+        // ========================================
+
+        function SchoolCard({ program, rank, onConsult }) {
+        const getRankStyle = (rank) => {
+            if (rank === 1) return { bg: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', icon: '🥇' };
+            if (rank === 2) return { bg: 'linear-gradient(135deg, #C0C0C0 0%, #A0A0A0 100%)', icon: '🥈' };
+            if (rank === 3) return { bg: 'linear-gradient(135deg, #CD7F32 0%, #8B4513 100%)', icon: '🥉' };
+            return { bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', icon: rank };
+        };
+        
+        const rankStyle = getRankStyle(rank);
+        
+        return (
+            <div className="school-card">
+            <div className="card-header">
+                <div className="rank-badge" style={{ background: rankStyle.bg }}>
+                {rankStyle.icon}
+                </div>
+                <div className="school-info">
+                <h3>{program.school}</h3>
+                <span className="category-tag">{program.category}</span>
+                </div>
+                <div className="match-score">
+                <div className="score-circle">
+                    <span className="score-value">{program.matchScore}</span>
+                    <span className="score-label">匹配度</span>
+                </div>
+                </div>
+            </div>
+            
+            <div className="card-body">
+                <div className="info-grid">
+                <div className="info-item">
+                    <span className="info-label">📚 学历层次</span>
+                    <span className="info-value">{program.degree || program.level}</span>
+                </div>
+                <div className="info-item">
+                    <span className="info-label">🎓 可选专业</span>
+                    <span className="info-value majors">{program.majors.slice(0, 3).join('、')}{program.majors.length > 3 ? '等' : ''}</span>
+                </div>
+                <div className="info-item">
+                    <span className="info-label">⏱️ 学制</span>
+                    <span className="info-value">{program.duration}</span>
+                </div>
+                <div className="info-item">
+                    <span className="info-label">💰 费用</span>
+                    <span className="info-value price">¥{program.tuition < 10000 ? program.tuition : (program.tuition / 10000).toFixed(1) + '万'}{program.tuitionMax ? `起` : ''}</span>
+                </div>
+                <div className="info-item full-width">
+                    <span className="info-label">📋 报名条件</span>
+                    <span className="info-value">{program.requirement}</span>
+                </div>
+                <div className="info-item full-width">
+                    <span className="info-label">🌍 学习形式</span>
+                    <span className="info-value">{program.studyForm}</span>
+                </div>
+                </div>
+                
+                {program.features && (
+                <div className="features">
+                    {program.features.map((f, idx) => (
+                    <span key={idx} className="feature-tag">{f}</span>
+                    ))}
+                </div>
+                )}
+            </div>
+            
+            <div className="card-footer">
+                <button className="consult-btn full-width" onClick={() => onConsult(program)}>
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                </svg>
+                立即咨询
+                </button>
+            </div>
+            </div>
+        );
+        }
+
+        // ========================================
+        // 特殊提示卡片组件
+        // ========================================
+
+        function TipCard({ type, content }) {
+        const styles = {
+            bonus: {
+            bg: 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)',
+            border: '#28a745',
+            icon: '🎉'
+            },
+            warning: {
+            bg: 'linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%)',
+            border: '#ffc107',
+            icon: '⚠️'
+            },
+            info: {
+            bg: 'linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%)',
+            border: '#17a2b8',
+            icon: '💡'
+            }
+        };
+        
+        const style = styles[type] || styles.info;
+        
+        return (
+            <div className="tip-card" style={{ background: style.bg, borderLeftColor: style.border }}>
+            <span className="tip-icon">{style.icon}</span>
+            <div className="tip-content" dangerouslySetInnerHTML={{ __html: content }} />
+            </div>
+        );
+        }
+
+        // ========================================
+        // 主应用组件
+        // ========================================
+
+        function App() {
+        const [messages, setMessages] = useState([]);
+        const [currentStep, setCurrentStep] = useState(0);
+        const [profile, setProfile] = useState({});
+        const [showResults, setShowResults] = useState(false);
+        const [matchedPrograms, setMatchedPrograms] = useState([]);
+        const [isTyping, setIsTyping] = useState(false);
+        const [modalOpen, setModalOpen] = useState(false);
+        const [selectedProgram, setSelectedProgram] = useState(null);
+        const [specialTips, setSpecialTips] = useState([]);
+        const [dynamicOptions, setDynamicOptions] = useState([]);
+        const [inputConfig, setInputConfig] = useState(null);
+        const messagesEndRef = useRef(null);
+        
+        // 自动滚动到底部
+        useEffect(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, [messages, isTyping]);
+        
+        // 初始化欢迎消息
+        useEffect(() => {
+            const initMessages = async () => {
+            setIsTyping(true);
+            await new Promise(r => setTimeout(r, 800));
+            setMessages([{ 
+                text: '您好！👋 欢迎来到学历提升规划中心。我是您的智能顾问小助手，将根据您的情况为您推荐最适合的院校和专业。\n\n请问您想要提升到什么学历？', 
+                isBot: true 
+            }]);
+
+            setIsTyping(false);
+            setDynamicOptions(['中专', '大专', '本科', '硕士', '博士']);
+            };
+            initMessages();
+        }, []);
+        
+        // 添加机器人消息的辅助函数
+        const addBotMessage = async (text, delay = 600) => {
+            setIsTyping(true);
+            await new Promise(r => setTimeout(r, delay));
+            setMessages(prev => [...prev, { text, isBot: true }]);
+            setIsTyping(false);
+        };
+        
+        // 处理用户选择/输入
+        const handleInput = async (value) => {
+            // 添加用户消息
+            setMessages(prev => [...prev, { text: value, isBot: false }]);
+            setDynamicOptions([]);
+            setInputConfig(null);
+            
+            const newProfile = { ...profile };
+            const tips = [...specialTips];
+            
+            switch (currentStep) {
+            case 0: // 目标学历
+                newProfile.targetDegree = value;
+                setProfile(newProfile);
+                
+                await addBotMessage(`好的，您希望提升到${value}学历。\n\n请问您对哪个专业方向感兴趣？`);
+                setDynamicOptions(['医学/护理', '教育/师范', '管理/工商', '计算机/IT', '建筑/工程', '会计/金融', '法学', '艺术/设计', '暂不确定']);
+                setCurrentStep(1);
+                break;
+                
+            case 1: // 意向专业
+                newProfile.majorInterest = value;
+                setProfile(newProfile);
+                
+                await addBotMessage(`了解了，您对${value === '暂不确定' ? '专业暂不确定' : value + '方向'}感兴趣。\n\n请问您有意向的院校吗？（请输入具体院校名称，如"山西大学"，如果没有特定意向请输入"暂无"）`);
+                setInputConfig({ type: 'text', placeholder: '请输入意向院校名称，如：山西大学、太原理工大学' });
+                setCurrentStep(2);
+                break;
+                
+            case 2: // 意向学校
+                newProfile.schoolPreference = value;
+                
+                if (value !== '暂无' && value !== '暂不确定') {
+                // 检查知识库中是否存在该院校
+                const allSchools = [
+                    ...KNOWLEDGE_BASE.zhongzhuan,
+                    ...KNOWLEDGE_BASE.dazhuan,
+                    ...KNOWLEDGE_BASE.benke,
+                    ...KNOWLEDGE_BASE.domestic_master,
+                    ...KNOWLEDGE_BASE.overseas_master,
+                    ...KNOWLEDGE_BASE.overseas_doctor
+                ];
+                
+                const preferredSchool = value.toLowerCase();
+                const schoolExists = allSchools.some(p => 
+                    p.school.toLowerCase().includes(preferredSchool) ||
+                    preferredSchool.includes(p.school.toLowerCase())
+                );
+                
+                newProfile.schoolNotInDatabase = !schoolExists; // 标记院校是否不在知识库中
+                
+                if (schoolExists) {
+                    await addBotMessage(`好的，您的意向院校是「${value}」，我会优先为您匹配该院校的相关项目。\n\n请问您目前的最高学历是什么？`);
+                } else {
+                    await addBotMessage(`好的，您的意向院校是「${value}」。该院校暂不在我们的合作院校库中，我们会记录您的需求，由顾问老师为您进一步确认。\n\n请问您目前的最高学历是什么？`);
+                }
+                } else {
+                newProfile.schoolNotInDatabase = false;
+                await addBotMessage(`好的，我会根据您的情况为您推荐最适合的院校。\n\n请问您目前的最高学历是什么？`);
+                }
+                
+                setProfile(newProfile);
+                setDynamicOptions(['初中', '中专', '技校', '高中', '大专', '本科', '硕士']);
+                setCurrentStep(3);
+                break;
+                
+            case 3: // 当前学历
+                newProfile.currentEducation = value;
+                setProfile(newProfile);
+                
+                // 检查学历路径是否合理
+                const pathRule = EDUCATION_PATH_RULES[value];
+                const targetDegree = newProfile.targetDegree;
+                
+                if (pathRule && !pathRule.canUpgradeTo.includes(targetDegree)) {
+                // 学历路径不合理，需要给出建议
+                if (value === '初中') {
+                    tips.push({
+                    type: 'warning',
+                    content: `<strong>温馨提示：</strong>初中学历需要先提升至中专，之后才能继续提升至大专或本科。<br/><br/>
+                    <strong>中专学历提升说明：</strong><br/>
+                    • 18周岁及以上：中专1年毕业<br/>
+                    • 16-18周岁：中专2年毕业<br/>
+                    • 国家承认学历，学信网可查`
+                    });
+                    newProfile.needZhongzhuan = true;
+                    newProfile.originalTarget = targetDegree;
+                    newProfile.targetDegree = '中专'; // 先推荐中专
+                } else {
+                    const availableTargets = pathRule.canUpgradeTo.join('、');
+                    tips.push({
+                    type: 'info',
+                    content: `<strong>学历提升建议：</strong>根据您当前${value}学历，建议先提升至${availableTargets}，再进一步深造。`
+                    });
+                }
+                setSpecialTips(tips);
+                }
+                
+                await addBotMessage('请问您的户籍所在地是哪个省份？');
+                setInputConfig({ type: 'text', placeholder: '请输入省份，如：广东、湖南' });
+                setCurrentStep(4);
+                break;
+                
+            case 4: // 户籍所在地
+                newProfile.hukou = value;
+                setProfile(newProfile);
+                
+                await addBotMessage('请问您的年龄是多少周岁？');
+                setInputConfig({ type: 'number', placeholder: '请输入您的年龄' });
+                setCurrentStep(5);
+                break;
+                
+            case 5: // 年龄
+                const age = parseInt(value);
+                newProfile.age = age;
+                setProfile(newProfile);
+                
+                // 检查年龄相关优惠政策
+                if (age >= 25 && 
+                    ['高中', '中专', '技校'].includes(newProfile.currentEducation) &&
+                    ['大专', '本科'].includes(newProfile.targetDegree)) {
+                tips.push({
+                    type: 'bonus',
+                    content: `<strong>🎉 好消息！</strong>您已满25周岁，参加成人高考可享受<strong>照顾加20分</strong>的政策优惠！`
+                });
+                setSpecialTips([...specialTips, ...tips]);
+                }
+                
+                // 如果是初中学历需要先读中专，检查中专学制
+                if (newProfile.needZhongzhuan) {
+                if (age >= 18) {
+                    tips.push({
+                    type: 'info',
+                    content: `根据您的年龄（${age}周岁），中专学制为<strong>1年</strong>即可毕业。`
+                    });
+                } else if (age >= 16) {
+                    tips.push({
+                    type: 'info',
+                    content: `根据您的年龄（${age}周岁），中专学制为<strong>2年</strong>毕业。`
+                    });
+                }
+                setSpecialTips([...specialTips, ...tips]);
+                }
+                
+                await addBotMessage('好的，我将根据您的信息，个性化推荐院校。同时，为了方便我们的专业顾问为您提供更详细的咨询服务，请留下您的联系方式（手机号或微信号）：');
+                setInputConfig({ type: 'text', placeholder: '请输入您的手机号或微信号' });
+                setCurrentStep(6);
+                break;
+                
+            case 6: // 联系方式 -> 然后推荐院校
+                newProfile.contact = value;
+                setProfile(newProfile);
+                
+                // 检查是否意向院校不在知识库中
+                // if (newProfile.schoolNotInDatabase) {
+                //   // 意向院校不在知识库，不做推荐
+                //   let noMatchMsg = `好的，您的联系方式（${value}）已记录！\n\n`;
+                //   noMatchMsg += `📋 您的意向院校「${newProfile.schoolPreference}」暂不在我们的合作院校库中，我们已记录您的需求。\n\n`;
+                //   noMatchMsg += `我们的学历规划师将在24小时内与您联系，为您确认该院校的招生信息并提供一对一的专业咨询服务。\n\n`;
+                //   noMatchMsg += `您也可以直接点击下方"立即咨询"按钮，联系顾问老师。`;
+                
+                //   await addBotMessage(noMatchMsg);
+                
+                //   // 不显示推荐结果卡片
+                //   setMatchedPrograms([]);
+                //   setShowResults(false); // 或者设为 true 但 matchedPrograms 为空
+                //   setCurrentStep(7);
+                //   break;
+                // }
+                
+                await addBotMessage(`好的，您的联系方式（${value}）已记录！\n\n🎯 小豆正在为您智能匹配最适合的院校和专业...`);
+                
+                // 开始匹配
+                setIsTyping(true);
+                await new Promise(r => setTimeout(r, 1500));
+                
+                // 执行匹配
+                const matchResult = matchPrograms(newProfile);
+                const results = matchResult.programs;
+                setMatchedPrograms(results);
+
+                let resultMsg = '';
+
+                if (matchResult.needUpgradeFirst) {
+                resultMsg = `😔 抱歉，根据您目前的学历情况，暂时没有找到可以直接报名${newProfile.targetDegree}的项目。\n\n💡 ${matchResult.suggestion}`;
+                
+                // 自动推荐下一步学历的项目
+                let nextStepDegree = '';
+                if (['高中', '中专', '技校'].includes(newProfile.currentEducation)) {
+                    if (newProfile.targetDegree === '硕士' || newProfile.targetDegree === '博士') {
+                    nextStepDegree = '本科';
+                    }
+                } else if (newProfile.currentEducation === '本科' && newProfile.targetDegree === '博士') {
+                    nextStepDegree = '硕士';
+                }
+                
+                if (nextStepDegree) {
+                    // 创建一个临时profile来查询下一步学历的项目
+                    const tempProfile = { ...newProfile, targetDegree: nextStepDegree };
+                    const nextStepResult = matchPrograms(tempProfile);
+                    
+                    if (nextStepResult.programs.length > 0) {
+                    resultMsg += `\n\n📚 以下是为您推荐的${nextStepDegree}项目，完成后可继续提升至${newProfile.targetDegree}：`;
+                    setMatchedPrograms(nextStepResult.programs);
+                    }
+                }
+                } else {
+                // 有匹配结果
+                if (newProfile.schoolNotInDatabase) {
+                    // 意向院校不在知识库，但推荐其他院校
+                    resultMsg = `📋 您的意向院校「${newProfile.schoolPreference}」暂不在我们的合作院校库中，目前不支持该院校的报名。\n\n`;
+                    resultMsg += `根据您的情况，小豆为您推荐以下 ${results.length} 个匹配的院校项目：`;
+                } else {
+                    resultMsg = `根据您的情况，小豆为您找到了 ${results.length} 个匹配的项目！`;
+                }
+                
+                if (newProfile.needZhongzhuan) {
+                    resultMsg += `\n\n由于您目前是初中学历，建议您先完成中专学历提升，之后再继续提升至${newProfile.originalTarget}。以下是为您推荐的中专项目：`;
+                }
+                }
+
+                resultMsg += `\n\n我们的学历规划师将在24小时内与您联系，为您提供一对一的专业咨询服务。您也可以点击下方院校卡片的"立即咨询"按钮，直接联系顾问老师。`;
+
+                if (newProfile.needZhongzhuan) {
+                resultMsg += `\n\n由于您目前是初中学历，建议您先完成中专学历提升，之后再继续提升至${newProfile.originalTarget}。以下是为您推荐的中专项目：`;
+                }
+                resultMsg += `\n\n我们的学历规划师将在24小时内与您联系，为您提供一对一的专业咨询服务。您也可以点击下方院校卡片的"立即咨询"按钮，直接联系顾问老师。`;
+                
+                setMessages(prev => [...prev, { text: resultMsg, isBot: true }]);
+                
+                setIsTyping(false);
+                setShowResults(true);
+                setCurrentStep(7);
+                break;
+                
+            default:
+                break;
+            }
+        };
+        
+        // 打开咨询弹窗
+        const handleConsult = (program) => {
+            setSelectedProgram(program);
+            setModalOpen(true);
+            
+            console.log('咨询记录:', {
+            user: profile,
+            program: program,
+            timestamp: new Date().toISOString()
+            });
+        };
+        
+        // 重新开始
+        const handleRestart = () => {
+            setMessages([]);
+            setCurrentStep(0);
+            setProfile({});
+            setShowResults(false);
+            setMatchedPrograms([]);
+            setSpecialTips([]);
+            setDynamicOptions([]);
+            setInputConfig(null);
+            
+            setTimeout(async () => {
+            setIsTyping(true);
+            await new Promise(r => setTimeout(r, 500));
+
+            setMessages([{ 
+                text: '您好！👋 欢迎来到学历提升规划中心。我是您的智能顾问小助手，将根据您的情况为您推荐最适合的专业和院校。\n\n请问您想要提升到什么学历？', 
+                isBot: true 
+            }]);
+
+            setIsTyping(false);
+            setDynamicOptions(['中专', '大专', '本科', '硕士', '博士']);
+            }, 300);
+        };
+        
+        return (
+            <div className="app-container">
+            {/* 头部 */}
+            <header className="app-header">
+                <div className="header-content">
+                <div className="logo">
+                    <div className="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
+                    </svg>
+                    </div>
+                    <div className="logo-text">
+                    <h1>学历提升智能咨询</h1>
+                    <p>专注成人学业规划 | 中专至博士 | 专业匹配 | 院校优选 | 全程护航</p>
+                    </div>
+                </div>
+                {showResults && (
+                    <button className="restart-btn" onClick={handleRestart}>
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                    </svg>
+                    重新咨询
+                    </button>
+                )}
+                </div>
+            </header>
+            
+            {/* 主体内容 */}
+            <main className="app-main">
+                {/* 对话区域 */}
+                <div className="chat-section">
+                <div className="messages-container">
+                    {messages.map((msg, idx) => (
+                    <Message key={idx} message={msg.text} isBot={msg.isBot} />
+                    ))}
+                    
+                    {isTyping && (
+                    <div className="message bot">
+                        <div className="avatar bot-avatar">
+                        <span className="bot-name">小豆</span>
+                        </div>
+                        <div className="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        </div>
+                    </div>
+                    )}
+                    
+                    <div ref={messagesEndRef} />
+                </div>
+                
+                {/* 输入区域 */}
+                {!isTyping && (
+                    <>
+                    {dynamicOptions.length > 0 && (
+                        <OptionButtons
+                        options={dynamicOptions}
+                        onSelect={handleInput}
+                        />
+                    )}
+                    {inputConfig && (
+                        <TextInput
+                        placeholder={inputConfig.placeholder}
+                        type={inputConfig.type}
+                        onSubmit={handleInput}
+                        />
+                    )}
+                    </>
+                )}
+                </div>
+                
+                {/* 特殊提示区域 */}
+                {specialTips.length > 0 && showResults && (
+                <div className="tips-section">
+                    {specialTips.map((tip, idx) => (
+                    <TipCard key={idx} type={tip.type} content={tip.content} />
+                    ))}
+                </div>
+                )}
+                
+                {/* 结果展示区域 */}
+                {showResults && matchedPrograms.length > 0 && (
+                <div className="results-section">
+                    <div className="results-header">
+                    <h2>🎓 小豆为您推荐的院校项目</h2>
+                    <p>共找到 <strong>{matchedPrograms.length}</strong> 个匹配项目</p>
+                    </div>
+                    
+                    <div className="results-grid">
+                    {matchedPrograms.map((program, idx) => (
+                        <SchoolCard 
+                        key={program.id} 
+                        program={program} 
+                        rank={idx + 1}
+                        onConsult={handleConsult}
+                        />
+                    ))}
+                    </div>
+                    
+                    {/* 用户画像摘要 */}
+                    <div className="profile-summary">
+                    <h3>📋 您的需求摘要</h3>
+                    <div className="summary-tags">
+                        <span>目标学历：{profile.targetDegree}</span>
+                        <span>意向专业：{profile.majorInterest}</span>
+                        <span>院校偏好：{profile.schoolPreference}</span>
+                        <span>当前学历：{profile.currentEducation}</span>
+                        <span>户籍所在：{profile.hukou}</span>
+                        <span>年龄：{profile.age}周岁</span>
+                        {profile.contact && <span>联系方式：{profile.contact}</span>}
+                    </div>
+                    </div>
+                </div>
+                )}
+            </main>
+            
+            {/* 底部 */}
+            <footer className="app-footer">
+                <p>💡 提示：以上信息仅供参考，具体招生政策以各院校官方公布为准 | 小豆智能顾问</p>
+            </footer>
+            
+            {/* 咨询弹窗 */}
+            <ConsultModal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                program={selectedProgram}
+                userName={profile.userName}
+            />
+            
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+                
+                * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                }
+                
+                .app-container {
+                min-height: 100vh;
+                font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+                background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+                display: flex;
+                flex-direction: column;
+                }
+                
+                /* 头部样式 */
+                .app-header {
+                background: linear-gradient(135deg, #1a365d 0%, #2d5a87 50%, #1e6091 100%);
+                padding: 1rem 2rem;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                }
+                
+                .header-content {
+                max-width: 1400px;
+                margin: 0 auto;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                }
+                
+                .logo {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                }
+                
+                .logo-icon {
+                width: 48px;
+                height: 48px;
+                background: rgba(255, 255, 255, 0.15);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #ffd700;
+                }
+                
+                .logo-icon svg {
+                width: 28px;
+                height: 28px;
+                }
+                
+                .logo-text h1 {
+                font-size: 1.3rem;
+                font-weight: 600;
+                color: white;
+                letter-spacing: 0.5px;
+                }
+                
+                .logo-text p {
+                font-size: 0.75rem;
+                color: rgba(255, 255, 255, 0.85);
+                margin-top: 4px;
+                letter-spacing: 1px;
+                }
+                
+                .restart-btn {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.6rem 1.2rem;
+                background: rgba(255, 255, 255, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 8px;
+                color: white;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.2s;
+                }
+                
+                .restart-btn:hover {
+                background: rgba(255, 255, 255, 0.25);
+                }
+                
+                /* 主体样式 */
+                .app-main {
+                flex: 1;
+                max-width: 1400px;
+                width: 100%;
+                margin: 0 auto;
+                padding: 2rem;
+                display: flex;
+                flex-direction: column;
+                gap: 2rem;
+                }
+                
+                /* 对话区域 */
+                .chat-section {
+                background: white;
+                border-radius: 20px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+                overflow: hidden;
+                }
+                
+                .messages-container {
+                padding: 2rem;
+                max-height: 450px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                }
+                
+                .message {
+                display: flex;
+                align-items: flex-start;
+                gap: 0.8rem;
+                animation: fadeIn 0.3s ease;
+                }
+                
+                @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+                }
+                
+                .message.user {
+                flex-direction: row-reverse;
+                }
+                
+                .avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                }
+                
+                .bot-avatar {
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                font-size: 0.75rem;
+                font-weight: 600;
+                }
+                
+                .bot-name {
+                font-size: 0.7rem;
+                }
+                
+                .user-avatar {
+                background: linear-gradient(135deg, #6366f1, #4f46e5);
+                color: white;
+                }
+                
+                .avatar svg {
+                width: 22px;
+                height: 22px;
+                }
+                
+                .message-content {
+                max-width: 70%;
+                padding: 1rem 1.2rem;
+                border-radius: 18px;
+                font-size: 0.95rem;
+                line-height: 1.7;
+                }
+                
+                .message.bot .message-content {
+                background: #f1f5f9;
+                color: #334155;
+                border-bottom-left-radius: 4px;
+                }
+                
+                .message.user .message-content {
+                background: linear-gradient(135deg, #1a365d, #2d5a87);
+                color: white;
+                border-bottom-right-radius: 4px;
+                }
+                
+                /* 打字指示器 */
+                .typing-indicator {
+                display: flex;
+                gap: 4px;
+                padding: 1rem 1.2rem;
+                background: #f1f5f9;
+                border-radius: 18px;
+                border-bottom-left-radius: 4px;
+                }
+                
+                .typing-indicator span {
+                width: 8px;
+                height: 8px;
+                background: #94a3b8;
+                border-radius: 50%;
+                animation: typing 1.4s infinite ease-in-out;
+                }
+                
+                .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+                .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+                
+                @keyframes typing {
+                0%, 60%, 100% { transform: translateY(0); }
+                30% { transform: translateY(-8px); }
+                }
+                
+                /* 选项按钮 */
+                .options-container {
+                padding: 1.5rem 2rem 2rem;
+                border-top: 1px solid #e2e8f0;
+                background: #fafbfc;
+                }
+                
+                .options-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.8rem;
+                justify-content: center;
+                }
+                
+                .option-btn {
+                padding: 0.8rem 1.5rem;
+                background: white;
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                font-size: 0.95rem;
+                font-weight: 500;
+                color: #475569;
+                cursor: pointer;
+                transition: all 0.2s;
+                }
+                
+                .option-btn:hover {
+                border-color: #10b981;
+                color: #10b981;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+                }
+                
+                /* 文本输入 */
+                .text-input-container {
+                padding: 1.5rem 2rem 2rem;
+                border-top: 1px solid #e2e8f0;
+                background: #fafbfc;
+                display: flex;
+                gap: 1rem;
+                }
+                
+                .text-input {
+                flex: 1;
+                padding: 0.9rem 1.2rem;
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                font-size: 1rem;
+                outline: none;
+                transition: border-color 0.2s;
+                }
+                
+                .text-input:focus {
+                border-color: #10b981;
+                }
+                
+                .submit-btn {
+                padding: 0.9rem 2rem;
+                background: linear-gradient(135deg, #10b981, #059669);
+                border: none;
+                border-radius: 12px;
+                color: white;
+                font-size: 1rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s;
+                }
+                
+                .submit-btn:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+                }
+                
+                .submit-btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                }
+                
+                /* 提示卡片区域 */
+                .tips-section {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                }
+                
+                .tip-card {
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                border-left: 4px solid;
+                display: flex;
+                align-items: flex-start;
+                gap: 1rem;
+                animation: fadeIn 0.3s ease;
+                }
+                
+                .tip-icon {
+                font-size: 1.5rem;
+                flex-shrink: 0;
+                }
+                
+                .tip-content {
+                font-size: 0.95rem;
+                line-height: 1.7;
+                color: #334155;
+                }
+                
+                /* 结果区域 */
+                .results-section {
+                animation: slideUp 0.5s ease;
+                }
+                
+                @keyframes slideUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+                }
+                
+                .results-header {
+                text-align: center;
+                margin-bottom: 2rem;
+                }
+                
+                .results-header h2 {
+                font-size: 1.6rem;
+                color: #1a365d;
+                margin-bottom: 0.5rem;
+                }
+                
+                .results-header p {
+                color: #64748b;
+                font-size: 1rem;
+                }
+                
+                .results-header strong {
+                color: #10b981;
+                font-size: 1.2rem;
+                }
+                
+                .results-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+                gap: 1.5rem;
+                }
+                
+                /* 院校卡片 */
+                .school-card {
+                background: white;
+                border-radius: 20px;
+                overflow: hidden;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+                transition: all 0.3s ease;
+                border: 1px solid #e2e8f0;
+                }
+                
+                .school-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+                }
+                
+                .card-header {
+                padding: 1.2rem 1.5rem;
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                border-bottom: 1px solid #e2e8f0;
+                }
+                
+                .rank-badge {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: white;
+                flex-shrink: 0;
+                }
+                
+                .school-info {
+                flex: 1;
+                min-width: 0;
+                }
+                
+                .school-info h3 {
+                font-size: 1.05rem;
+                font-weight: 600;
+                color: #1e293b;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                }
+                
+                .category-tag {
+                display: inline-block;
+                margin-top: 4px;
+                padding: 2px 8px;
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                font-size: 0.7rem;
+                border-radius: 4px;
+                }
+                
+                .match-score {
+                flex-shrink: 0;
+                }
+                
+                .score-circle {
+                width: 52px;
+                height: 52px;
+                background: linear-gradient(135deg, #f59e0b, #d97706);
+                border-radius: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                }
+                
+                .score-value {
+                font-size: 1.1rem;
+                font-weight: 700;
+                line-height: 1;
+                }
+                
+                .score-label {
+                font-size: 0.55rem;
+                opacity: 0.9;
+                }
+                
+                .card-body {
+                padding: 1.2rem 1.5rem;
+                }
+                
+                .info-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.8rem;
+                }
+                
+                .info-item {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+                }
+                
+                .info-item.full-width {
+                grid-column: 1 / -1;
+                }
+                
+                .info-label {
+                font-size: 0.75rem;
+                color: #64748b;
+                }
+                
+                .info-value {
+                font-size: 0.9rem;
+                color: #334155;
+                font-weight: 500;
+                }
+                
+                .info-value.majors {
+                font-size: 0.85rem;
+                }
+                
+                .info-value.price {
+                color: #dc2626;
+                font-weight: 600;
+                }
+                
+                .features {
+                margin-top: 1rem;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                }
+                
+                .feature-tag {
+                padding: 4px 10px;
+                background: #fef3c7;
+                color: #92400e;
+                font-size: 0.7rem;
+                border-radius: 20px;
+                font-weight: 500;
+                }
+                
+                .card-footer {
+                padding: 1rem 1.5rem;
+                background: #f8fafc;
+                border-top: 1px solid #e2e8f0;
+                }
+                
+                .consult-btn {
+                padding: 0.85rem 1.5rem;
+                border-radius: 12px;
+                font-size: 0.95rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                background: linear-gradient(135deg, #10b981, #059669);
+                border: none;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                }
+                
+                .consult-btn.full-width {
+                width: 100%;
+                }
+                
+                .consult-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+                }
+                
+                /* 用户画像摘要 */
+                .profile-summary {
+                margin-top: 2rem;
+                padding: 1.5rem 2rem;
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+                }
+                
+                .profile-summary h3 {
+                font-size: 1rem;
+                color: #475569;
+                margin-bottom: 1rem;
+                }
+                
+                .summary-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.8rem;
+                }
+                
+                .summary-tags span {
+                padding: 0.5rem 1rem;
+                background: #f1f5f9;
+                color: #475569;
+                font-size: 0.85rem;
+                border-radius: 8px;
+                }
+                
+                /* 底部 */
+                .app-footer {
+                padding: 1.5rem 2rem;
+                text-align: center;
+                color: #64748b;
+                font-size: 0.85rem;
+                background: rgba(255, 255, 255, 0.5);
+                }
+                
+                /* ========================================
+                咨询弹窗样式
+                ======================================== */
+                .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(4px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                padding: 1rem;
+                animation: fadeIn 0.2s ease;
+                }
+                
+                .modal-content {
+                background: white;
+                border-radius: 24px;
+                width: 100%;
+                max-width: 420px;
+                max-height: 90vh;
+                overflow-y: auto;
+                position: relative;
+                animation: slideUp 0.3s ease;
+                }
+                
+                .modal-close {
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                width: 32px;
+                height: 32px;
+                border: none;
+                background: #f1f5f9;
+                border-radius: 50%;
+                font-size: 1.5rem;
+                color: #64748b;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s;
+                }
+                
+                .modal-close:hover {
+                background: #e2e8f0;
+                color: #334155;
+                }
+                
+                .modal-header {
+                padding: 2rem 2rem 1.5rem;
+                text-align: center;
+                border-bottom: 1px solid #e2e8f0;
+                }
+                
+                .modal-icon {
+                width: 64px;
+                height: 64px;
+                background: linear-gradient(135deg, #10b981, #059669);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 1rem;
+                }
+                
+                .modal-icon svg {
+                width: 32px;
+                height: 32px;
+                color: white;
+                }
+                
+                .modal-header h2 {
+                font-size: 1.4rem;
+                color: #1e293b;
+                margin-bottom: 0.5rem;
+                }
+                
+                .modal-subtitle {
+                font-size: 0.95rem;
+                color: #64748b;
+                }
+                
+                .modal-subtitle strong {
+                color: #1a365d;
+                }
+                
+                .consultant-card {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1.2rem 2rem;
+                background: #f8fafc;
+                }
+                
+                .consultant-avatar {
+                width: 56px;
+                height: 56px;
+                background: linear-gradient(135deg, #1a365d, #2d5a87);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                }
+                
+                .consultant-avatar svg {
+                width: 32px;
+                height: 32px;
+                color: white;
+                }
+                
+                .consultant-info h3 {
+                font-size: 1.1rem;
+                color: #1e293b;
+                margin-bottom: 2px;
+                }
+                
+                .consultant-title {
+                font-size: 0.85rem;
+                color: #64748b;
+                }
+                
+                .contact-section {
+                padding: 1.5rem 2rem;
+                }
+                
+                .contact-item {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1rem;
+                background: #f8fafc;
+                border-radius: 16px;
+                border: 2px solid #e2e8f0;
+                transition: all 0.2s;
+                }
+                
+                .contact-item.phone:hover {
+                border-color: #10b981;
+                background: #f0fdf4;
+                }
+                
+                .contact-icon {
+                width: 48px;
+                height: 48px;
+                background: linear-gradient(135deg, #10b981, #059669);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                }
+                
+                .contact-icon svg {
+                width: 24px;
+                height: 24px;
+                color: white;
+                }
+                
+                .contact-detail {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+                }
+                
+                .contact-label {
+                font-size: 0.8rem;
+                color: #64748b;
+                }
+                
+                .contact-value {
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: #1e293b;
+                }
+                
+                .phone-number {
+                text-decoration: none;
+                color: #10b981;
+                }
+                
+                .phone-number:hover {
+                text-decoration: underline;
+                }
+                
+                .contact-hint {
+                font-size: 0.75rem;
+                color: #94a3b8;
+                }
+                
+                .contact-divider {
+                display: flex;
+                align-items: center;
+                margin: 1.2rem 0;
+                color: #94a3b8;
+                font-size: 0.85rem;
+                }
+                
+                .contact-divider::before,
+                .contact-divider::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: #e2e8f0;
+                }
+                
+                .contact-divider span {
+                padding: 0 1rem;
+                }
+                
+                .contact-item.wechat {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.5rem;
+                }
+                
+                .qr-code-wrapper {
+                width: 160px;
+                height: 160px;
+                margin-bottom: 1rem;
+                }
+                
+                .qr-code {
+                width: 100%;
+                height: 100%;
+                border-radius: 12px;
+                border: 3px solid #e2e8f0;
+                }
+                
+                .wechat-info {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                }
+                
+                .wechat-id {
+                font-size: 0.9rem;
+                color: #475569;
+                font-weight: 500;
+                }
+                
+                .modal-footer {
+                padding: 1.2rem 2rem 2rem;
+                border-top: 1px solid #e2e8f0;
+                }
+                
+                .callback-notice {
+                display: flex;
+                align-items: center;
+                gap: 0.8rem;
+                padding: 1rem;
+                background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+                border-radius: 12px;
+                margin-bottom: 1rem;
+                }
+                
+                .callback-notice svg {
+                width: 24px;
+                height: 24px;
+                color: #10b981;
+                flex-shrink: 0;
+                }
+                
+                .callback-notice span {
+                font-size: 0.9rem;
+                color: #065f46;
+                line-height: 1.4;
+                }
+                
+                .callback-notice strong {
+                color: #047857;
+                }
+                
+                .working-hours {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                color: #64748b;
+                font-size: 0.85rem;
+                }
+                
+                .working-hours svg {
+                width: 16px;
+                height: 16px;
+                }
+                
+                /* 滚动条美化 */
+                .messages-container::-webkit-scrollbar,
+                .modal-content::-webkit-scrollbar {
+                width: 6px;
+                }
+                
+                .messages-container::-webkit-scrollbar-track,
+                .modal-content::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 3px;
+                }
+                
+                .messages-container::-webkit-scrollbar-thumb,
+                .modal-content::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 3px;
+                }
+                
+                .messages-container::-webkit-scrollbar-thumb:hover,
+                .modal-content::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+                }
+                
+                /* 响应式 */
+                @media (max-width: 768px) {
+                .app-main {
+                    padding: 1rem;
+                }
+                
+                .results-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .header-content {
+                    flex-direction: column;
+                    gap: 1rem;
+                    text-align: center;
+                }
+                
+                .logo-text p {
+                    font-size: 0.65rem;
+                }
+                
+                .message-content {
+                    max-width: 85%;
+                }
+                
+                .info-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .info-item.full-width {
+                    grid-column: 1;
+                }
+                
+                .text-input-container {
+                    flex-direction: column;
+                }
+                
+                .modal-content {
+                    margin: 0.5rem;
+                    max-height: 95vh;
+                }
+                
+                .options-grid {
+                    gap: 0.6rem;
+                }
+                
+                .option-btn {
+                    padding: 0.7rem 1.2rem;
+                    font-size: 0.9rem;
+                }
+                }
+            `}</style>
+            </div>
+        );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+    </script>
+</body>
+</html>
