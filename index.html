@@ -1168,10 +1168,42 @@
         }
 
         // 返回结果和是否需要先提升学历的建议
+        // 检查意向院校是否有意向专业
+        let schoolHasMajor = true;
+        let schoolInDatabase = true;
+
+        if (profile.schoolPreference && 
+            profile.schoolPreference !== '暂无' && 
+            profile.schoolPreference !== '暂不确定') {
+            
+            const preferredSchool = profile.schoolPreference.toLowerCase();
+            
+            // 检查意向院校是否在结果中
+            const matchedSchool = results.find(p => 
+                p.school.toLowerCase().includes(preferredSchool) ||
+                preferredSchool.includes(p.school.toLowerCase())
+            );
+            
+            if (!matchedSchool) {
+                schoolInDatabase = false;
+            } else if (profile.majorInterest && 
+                    profile.majorInterest !== '不限' && 
+                    profile.majorInterest !== '暂不确定') {
+                // 检查该院校是否有意向专业
+                const interest = profile.majorInterest.toLowerCase();
+                const hasMajor = matchedSchool.majors.some(m => 
+                    matchMajorInterest(m.toLowerCase(), interest)
+                );
+                schoolHasMajor = hasMajor;
+            }
+        }
+
         return {
             programs: results,
             needUpgradeFirst: results.length === 0,
-            suggestion: results.length === 0 ? getSuggestion(profile) : null
+            suggestion: results.length === 0 ? getSuggestion(profile) : null,
+            schoolInDatabase: schoolInDatabase,
+            schoolHasMajor: schoolHasMajor
         };
         }
 
@@ -1724,18 +1756,27 @@
                     }
                 }
                 } else {
-                // 有匹配结果
-                if (newProfile.schoolNotInDatabase) {
-                    // 意向院校不在知识库，但推荐其他院校
-                    resultMsg = `📋 您的意向院校「${newProfile.schoolPreference}」暂不在我们的合作院校库中，目前不支持该院校的报名。\n\n`;
-                    resultMsg += `根据您的情况，小豆为您推荐以下 ${results.length} 个匹配的院校项目：`;
-                } else {
-                    resultMsg = `根据您的情况，小豆为您找到了 ${results.length} 个匹配的项目！`;
-                }
-                
-                if (newProfile.needZhongzhuan) {
-                    resultMsg += `\n\n由于您目前是初中学历，建议您先完成中专学历提升，之后再继续提升至${newProfile.originalTarget}。以下是为您推荐的中专项目：`;
-                }
+                    // 有匹配结果
+                    if (!matchResult.schoolInDatabase) {
+                        // 情况1：意向院校不在知识库
+                        resultMsg = `📋 您的意向院校「${newProfile.schoolPreference}」暂不在我们的合作院校库中，暂时没有相关项目。\n\n`;
+                        resultMsg += `不过，以下院校有您感兴趣的「${newProfile.majorInterest}」相关专业，按推荐评分为您推荐：`;
+                    } else if (!matchResult.schoolHasMajor) {
+                        // 情况2：意向院校在知识库，但没有意向专业
+                        resultMsg = `📋 您的意向院校「${newProfile.schoolPreference}」暂时没有「${newProfile.majorInterest}」相关专业，暂时没有完全匹配的项目。\n\n`;
+                        resultMsg += `不过，以下其他院校有您感兴趣的「${newProfile.majorInterest}」相关专业，按推荐评分为您推荐：`;
+                    } else if (newProfile.schoolNotInDatabase) {
+                        // 情况3：原有逻辑保留
+                        resultMsg = `📋 您的意向院校「${newProfile.schoolPreference}」暂不在我们的合作院校库中，目前不支持该院校的报名。\n\n`;
+                        resultMsg += `根据您的情况，小豆为您推荐以下 ${results.length} 个匹配的院校项目：`;
+                    } else {
+                        // 情况4：完全匹配
+                        resultMsg = `根据您的情况，小豆为您找到了 ${results.length} 个匹配的项目！`;
+                    }
+                    
+                    if (newProfile.needZhongzhuan) {
+                        resultMsg += `\n\n由于您目前是初中学历，建议您先完成中专学历提升，之后再继续提升至${newProfile.originalTarget}。以下是为您推荐的中专项目：`;
+                    }
                 }
 
                 resultMsg += `\n\n我们的学历规划师将在24小时内与您联系，为您提供一对一的专业咨询服务。您也可以点击下方院校卡片的"立即咨询"按钮，直接联系顾问老师。`;
