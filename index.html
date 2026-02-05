@@ -912,11 +912,11 @@
         // ========================================
         const CONSULTANT_INFO = {
         name: '赵老师',
-        title: '资深学历规划师',
+        title: '20年资深学历规划师',
         phone: '13734070457',
         wechat: 'zxj035844',
         // 注意：实际部署时请替换为赵老师微信二维码的真实URL
-        qrCodeUrl: 'https://www.picgo.net/image/QR.bnb22w',
+        qrCodeUrl: './zhao-teacher-qrcode.jpg',
         workingHours: '周一至周日 9:00-21:00',
         location: '山西太原'
         };
@@ -1171,6 +1171,7 @@
         // 检查意向院校是否有意向专业
         let schoolHasMajor = true;
         let schoolInDatabase = true;
+        let schoolHasTargetDegree = true;
 
         if (profile.schoolPreference && 
             profile.schoolPreference !== '暂无' && 
@@ -1196,6 +1197,53 @@
                 );
                 schoolHasMajor = hasMajor;
             }
+
+            if (profile.schoolPreference && 
+                profile.schoolPreference !== '暂无' && 
+                profile.schoolPreference !== '暂不确定') {
+                
+                const preferredSchool = profile.schoolPreference.toLowerCase();
+                
+                // 新增：获取所有知识库中的院校（不限学历层次）
+                const allSchools = [
+                    ...KNOWLEDGE_BASE.zhongzhuan,
+                    ...KNOWLEDGE_BASE.dazhuan,
+                    ...KNOWLEDGE_BASE.benke,
+                    ...KNOWLEDGE_BASE.domestic_master,
+                    ...KNOWLEDGE_BASE.overseas_master,
+                    ...KNOWLEDGE_BASE.overseas_doctor
+                ];
+                
+                // 检查意向院校是否在整个知识库中（不限学历）
+                const schoolExistsInAllDB = allSchools.some(p => 
+                    p.school.toLowerCase().includes(preferredSchool) ||
+                    preferredSchool.includes(p.school.toLowerCase())
+                );
+                
+                // 检查意向院校是否在当前目标学历的结果中
+                const matchedSchool = results.find(p => 
+                    p.school.toLowerCase().includes(preferredSchool) ||
+                    preferredSchool.includes(p.school.toLowerCase())
+                );
+                
+                if (!schoolExistsInAllDB) {
+                    // 院校完全不在知识库中
+                    schoolInDatabase = false;
+                } else if (!matchedSchool) {
+                    // 院校在知识库中，但不在当前目标学历的结果中
+                    schoolInDatabase = true;
+                    schoolHasTargetDegree = false;
+                } else if (profile.majorInterest && 
+                        profile.majorInterest !== '不限' && 
+                        profile.majorInterest !== '暂不确定') {
+                    // 检查该院校是否有意向专业
+                    const interest = profile.majorInterest.toLowerCase();
+                    const hasMajor = matchedSchool.majors.some(m => 
+                        matchMajorInterest(m.toLowerCase(), interest)
+                    );
+                    schoolHasMajor = hasMajor;
+                }
+            }
         }
 
         return {
@@ -1203,7 +1251,8 @@
             needUpgradeFirst: results.length === 0,
             suggestion: results.length === 0 ? getSuggestion(profile) : null,
             schoolInDatabase: schoolInDatabase,
-            schoolHasMajor: schoolHasMajor
+            schoolHasMajor: schoolHasMajor,
+            schoolHasTargetDegree: schoolHasTargetDegree
         };
         }
 
@@ -1531,7 +1580,7 @@
             setIsTyping(true);
             await new Promise(r => setTimeout(r, 800));
             setMessages([{ 
-                text: '您好！👋 欢迎来到学历提升规划中心。我是您的智能顾问小助手，将根据您的情况为您推荐最适合的院校和专业。\n\n请问您想要提升到什么学历？', 
+                text: '您好！👋 欢迎来到学历提升规划中心。我是您的智能顾问小豆，将根据您的情况为您推荐最适合的院校和专业。\n\n请问您想要提升到什么学历？', 
                 isBot: true 
             }]);
 
@@ -1693,7 +1742,7 @@
                 setSpecialTips([...specialTips, ...tips]);
                 }
                 
-                await addBotMessage('好的，我将根据您的信息，个性化推荐院校。同时，为了方便我们的专业顾问为您提供更详细的咨询服务，请留下您的联系方式（手机号或微信号）：');
+                await addBotMessage('好的，接下来我将根据您提供的信息，推荐符合要求的院校。同时，为了方便后续为您提供更详细的咨询服务，烦请留下您的联系方式（手机号或微信号）：');
                 setInputConfig({ type: 'text', placeholder: '请输入您的手机号或微信号' });
                 setCurrentStep(6);
                 break;
@@ -1758,17 +1807,15 @@
                 } else {
                     // 有匹配结果
                     if (!matchResult.schoolInDatabase) {
-                        // 情况1：意向院校不在知识库
-                        resultMsg = `📋 您的意向院校「${newProfile.schoolPreference}」暂不在我们的合作院校库中，暂时没有相关项目。\n\n`;
-                        resultMsg += `不过，以下院校有您感兴趣的「${newProfile.majorInterest}」相关专业，按推荐评分为您推荐：`;
+                        // 情况1：意向院校完全不在知识库
+                        resultMsg = `📋 您的意向院校「${newProfile.schoolPreference}」暂不在我们的合作院校库中...`;
+                    } else if (!matchResult.schoolHasTargetDegree) {
+                        // 情况2【新增】：意向院校在知识库，但没有对应的目标学历
+                        resultMsg = `📋 您的意向院校「${newProfile.schoolPreference}」目前没有${newProfile.targetDegree}层次的项目。\n\n`;
+                        resultMsg += `以下是其他院校的${newProfile.targetDegree}项目，按推荐评分为您推荐：`;
                     } else if (!matchResult.schoolHasMajor) {
-                        // 情况2：意向院校在知识库，但没有意向专业
-                        resultMsg = `📋 您的意向院校「${newProfile.schoolPreference}」暂时没有「${newProfile.majorInterest}」相关专业，暂时没有完全匹配的项目。\n\n`;
-                        resultMsg += `不过，以下其他院校有您感兴趣的「${newProfile.majorInterest}」相关专业，按推荐评分为您推荐：`;
-                    } else if (newProfile.schoolNotInDatabase) {
-                        // 情况3：原有逻辑保留
-                        resultMsg = `📋 您的意向院校「${newProfile.schoolPreference}」暂不在我们的合作院校库中，目前不支持该院校的报名。\n\n`;
-                        resultMsg += `根据您的情况，小豆为您推荐以下 ${results.length} 个匹配的院校项目：`;
+                        // 情况3：意向院校在知识库，有对应学历，但没有意向专业
+                        resultMsg = `📋 您的意向院校「${newProfile.schoolPreference}」暂时没有「${newProfile.majorInterest}」相关专业...`;
                     } else {
                         // 情况4：完全匹配
                         resultMsg = `根据您的情况，小豆为您找到了 ${results.length} 个匹配的项目！`;
